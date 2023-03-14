@@ -3,6 +3,9 @@ import { useAccount, useBlockNumber, useConnect, useContract } from "wagmi";
 import { InjectedConnector } from "wagmi/connectors/injected";
 import { goerli } from "wagmi";
 import { useBalance } from "wagmi";
+import { useProvider } from 'wagmi'
+import { useSendTransaction,  usePrepareSendTransaction  } from 'wagmi'
+
 
 const Wagmi = () => {
   useAccount;
@@ -26,7 +29,22 @@ const Wagmi = () => {
   const contract = useContract({
     address: `0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e`,
     abi: ``,
+    eventName: 'NewOwner',
+    listener(node, label, owner) {
+      console.log(node, label, owner)
+    },
   })
+
+  //useProvider
+  const provider = useProvider({
+    chainId: 1,
+  })
+
+  const { config } = usePrepareSendTransaction({
+    request: { to: 'moxey.eth', value: BigNumber.from('10000000000000000') },
+  })
+  const { data1, isLoading1, isSuccess, sendTransaction } =
+    useSendTransaction(config)
 
   return (
     <div>
@@ -37,6 +55,9 @@ const Wagmi = () => {
       ) : (
         <button onClick={connect}>Connect Wallet</button>
       )}
+      <button disabled={!sendTransaction} onClick={() => sendTransaction?.()}>
+        Send Transaction
+      </button>
     </div>
   );
 };
